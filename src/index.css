@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    background-color: #fbf8f3;
+    color: #2a2622;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 400;
+    min-height: 100dvh;
+  }
+  h1, h2, h3 {
+    font-family: 'Cormorant Garamond', 'Lora', Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  ::selection {
+    background: #e9c1a8;
+    color: #2a2622;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-sage-600 text-beige-50 font-medium text-base transition active:scale-[0.98] hover:bg-sage-700 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-beige-100 text-ink-900 font-medium text-base transition active:scale-[0.98] hover:bg-beige-200 border border-beige-200;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-ink-700 font-medium text-sm transition hover:bg-beige-100;
+  }
+  .card {
+    @apply bg-white/70 backdrop-blur-sm rounded-3xl border border-beige-200/70 shadow-soft;
+  }
+  .field {
+    @apply w-full rounded-2xl border border-beige-200 bg-white/70 px-4 py-3 text-ink-900 placeholder-ink-300 focus:outline-none focus:ring-2 focus:ring-sage-300 focus:border-sage-300 transition;
+  }
+}
+
+/* Subtle paper-grain background */
+.bg-paper {
+  background-color: #fbf8f3;
+  background-image:
+    radial-gradient(at 20% 10%, rgba(236, 226, 205, 0.55) 0px, transparent 50%),
+    radial-gradient(at 80% 90%, rgba(227, 235, 222, 0.55) 0px, transparent 50%);
+}
