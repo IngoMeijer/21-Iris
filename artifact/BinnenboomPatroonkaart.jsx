@@ -52,23 +52,38 @@ const C = {
 const FONT_SERIF = "'Cormorant Garamond', 'Lora', Georgia, serif"
 const FONT_SANS = "'Inter', system-ui, sans-serif"
 
-// ---------- Storage (window.storage, shared: false) ----------
+// ---------- Storage (window.storage) ----------
+// In the Claude artifact environment, window.storage uses get/set/delete.
 
 const STORAGE_AVAILABLE =
   typeof window !== 'undefined' &&
   window.storage &&
-  typeof window.storage.getItem === 'function'
+  typeof window.storage.get === 'function'
 
 async function rawGet(key) {
-  if (STORAGE_AVAILABLE) return await window.storage.getItem(key)
-  return null
+  if (!STORAGE_AVAILABLE) return null
+  try {
+    const result = await window.storage.get(key)
+    return result ? result.value : null
+  } catch {
+    return null
+  }
 }
 async function rawSet(key, value) {
-  if (STORAGE_AVAILABLE)
-    return await window.storage.setItem(key, value, { shared: false })
+  if (!STORAGE_AVAILABLE) return null
+  try {
+    return await window.storage.set(key, value, false)
+  } catch {
+    return null
+  }
 }
 async function rawRemove(key) {
-  if (STORAGE_AVAILABLE) return await window.storage.removeItem(key)
+  if (!STORAGE_AVAILABLE) return null
+  try {
+    return await window.storage.delete(key, false)
+  } catch {
+    return null
+  }
 }
 
 async function getJSON(key, fallback = null) {
@@ -395,13 +410,21 @@ const STYLES = `
   }
 `
 
-function BinnenboomMark({ size = 28, color = C.sage600 }) {
+function BinnenboomMark({ size = 28, color = C.sage600, accent = C.terra400 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true">
-      <path d="M32 54 V36" stroke={color} strokeWidth="1.6" strokeLinecap="round" opacity="0.6" />
-      <path d="M32 40 C22 36, 17 26, 22 16 C30 20, 35 28, 32 40 Z" fill={color} opacity="0.45" />
-      <path d="M32 40 C42 36, 47 26, 42 16 C34 20, 29 28, 32 40 Z" fill={color} opacity="0.75" />
-      <circle cx="32" cy="36" r="1.6" fill={color} />
+      {/* trunk */}
+      <path d="M32 60 V44" stroke={color} strokeWidth="1.8" strokeLinecap="round" opacity="0.55" />
+      {/* branches reaching the side leaves */}
+      <path d="M32 46 C28 40 24 36 22 32" stroke={color} strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.4" />
+      <path d="M32 46 C36 40 40 36 42 32" stroke={color} strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.4" />
+      {/* leaves */}
+      <path d="M22 32 C16 28 14 22 18 16 C24 20 26 26 22 32 Z" fill={color} opacity="0.5" />
+      <path d="M42 32 C48 28 50 22 46 16 C40 20 38 26 42 32 Z" fill={color} opacity="0.5" />
+      <path d="M32 22 C28 18 26 10 30 6 C34 12 36 16 32 22 Z" fill={color} opacity="0.6" />
+      <path d="M32 22 C36 18 38 10 34 6 C30 12 28 16 32 22 Z" fill={color} opacity="0.75" />
+      {/* heart in the middle */}
+      <path d="M32 40 C28 36 24 33 24 29 C24 27 26 25.5 28 25.5 C30 25.5 31 26.5 32 28 C33 26.5 34 25.5 36 25.5 C38 25.5 40 27 40 29 C40 33 36 36 32 40 Z" fill={accent} />
     </svg>
   )
 }
@@ -430,7 +453,7 @@ function Welcome({ initialPattern, onStart, onDemo }) {
   const [pattern, setPattern] = useState(initialPattern || '')
 
   function submit(e) {
-    e.preventDefault()
+    if (e && e.preventDefault) e.preventDefault()
     const t = pattern.trim()
     if (t.length < 3) return
     onStart(t)
@@ -480,7 +503,7 @@ function Welcome({ initialPattern, onStart, onDemo }) {
           ))}
         </div>
 
-        <form onSubmit={submit}>
+        <div>
           <label htmlFor="patroon" className="bb-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>
             Welk patroon wil jij onderzoeken?
           </label>
@@ -496,12 +519,12 @@ function Welcome({ initialPattern, onStart, onDemo }) {
           />
           <div style={{ marginTop: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '0.75rem', color: C.ink500 }}>{pattern.length}/200</span>
-            <button type="submit" disabled={pattern.trim().length < 3} className="bb-btn bb-btn-primary">
+            <button type="button" onClick={submit} disabled={pattern.trim().length < 3} className="bb-btn bb-btn-primary">
               Begin de 21 dagen
               <ArrowRight size={18} />
             </button>
           </div>
-        </form>
+        </div>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center' }}>
